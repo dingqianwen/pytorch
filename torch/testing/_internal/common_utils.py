@@ -1912,11 +1912,6 @@ class TestCase(expecttest.TestCase):
 
         self.assertEqual(np_result, torch_result, **kwargs)
 
-    def assertEqualIgnoreType(self, *args, **kwargs) -> None:
-        # If you are seeing this function used, that means test is written wrongly
-        # and deserves detailed investigation
-        return self.assertEqual(*args, exact_dtype=False, **kwargs)
-
     def assertEqual(
             self,
             x,

@@ -824,12 +824,10 @@ class TestDistributions(TestCase):
             expected = torch.tensor(expected)
             d = dist(**params)
             actual = d.enumerate_support(expand=False)
-            # TODO(#38095): Replace assertEqualIgnoreType. See issue #38095
-            self.assertEqualIgnoreType(actual, expected)
+            self.assertEqual(actual, expected)
             actual = d.enumerate_support(expand=True)
             expected_with_expand = expected.expand((-1,) + d.batch_shape + d.event_shape)
-            # TODO(#38095): Replace assertEqualIgnoreType. See issue #38095
-            self.assertEqualIgnoreType(actual, expected_with_expand)
+            self.assertEqual(actual, expected_with_expand)
 
     def test_repr(self):
         for Dist, params in EXAMPLES:
@@ -994,9 +992,9 @@ class TestDistributions(TestCase):
 
     def test_bernoulli_enumerate_support(self):
         examples = [
-            ({"probs": [0.1]}, [[0], [1]]),
-            ({"probs": [0.1, 0.9]}, [[0], [1]]),
-            ({"probs": [[0.1, 0.2], [0.3, 0.4]]}, [[[0]], [[1]]]),
+            ({"probs": [0.1]}, [[0.0], [1.0]]),
+            ({"probs": [0.1, 0.9]}, [[0.0], [1.0]]),
+            ({"probs": [[0.1, 0.2], [0.3, 0.4]]}, [[[0.0]], [[1.0]]]),
         ]
         self._check_enumerate_support(Bernoulli, examples)
 
@@ -1106,9 +1104,9 @@ class TestDistributions(TestCase):
 
     def test_binomial_enumerate_support(self):
         examples = [
-            ({"probs": [0.1], "total_count": 2}, [[0], [1], [2]]),
-            ({"probs": [0.1, 0.9], "total_count": 2}, [[0], [1], [2]]),
-            ({"probs": [[0.1, 0.2], [0.3, 0.4]], "total_count": 3}, [[[0]], [[1]], [[2]], [[3]]]),
+            ({"probs": [0.1], "total_count": 2}, [[0.0], [1.0], [2.0]]),
+            ({"probs": [0.1, 0.9], "total_count": 2}, [[0.0], [1.0], [2.0]]),
+            ({"probs": [[0.1, 0.2], [0.3, 0.4]], "total_count": 3}, [[[0.0]], [[1.0]], [[2.0]], [[3.0]]]),
         ]
         self._check_enumerate_support(Binomial, examples)
 
@@ -1131,8 +1129,7 @@ class TestDistributions(TestCase):
         set_rng_seed(1)  # see Note [Randomized statistical tests]
         total_count = torch.tensor([[4, 7], [3, 8]])
         bin0 = Binomial(total_count, torch.tensor(1.))
-        # TODO(#38095): Replace assertEqualIgnoreType. See issue #38095
-        self.assertEqualIgnoreType(bin0.sample(), total_count)
+        self.assertEqual(bin0.sample(), total_count, exact_dtype=False)
         bin1 = Binomial(total_count, torch.tensor(0.5))
         samples = bin1.sample(torch.Size((100000,)))
         self.assertTrue((samples <= total_count.type_as(samples)).all())
@@ -1230,9 +1227,9 @@ class TestDistributions(TestCase):
         self._gradcheck_log_prob(lambda p: Multinomial(total_count, None, p.log()), [p])
 
         # sample check for extreme value of probs
-        # TODO(#38095): Replace assertEqualIgnoreType. See issue #38095
-        self.assertEqualIgnoreType(Multinomial(total_count, s).sample(),
-                                   torch.tensor([[total_count, 0], [0, total_count]]))
+        self.assertEqual(
+            Multinomial(total_count, s).sample(), torch.tensor([[total_count, 0], [0, total_count]]), exact_dtype=False,
+        )
 
     def test_categorical_1d(self):
         p = torch.tensor([0.1, 0.2, 0.3], requires_grad=True)
@@ -1312,8 +1309,8 @@ class TestDistributions(TestCase):
 
     def test_one_hot_categorical_enumerate_support(self):
         examples = [
-            ({"probs": [0.1, 0.2, 0.7]}, [[1, 0, 0], [0, 1, 0], [0, 0, 1]]),
-            ({"probs": [[0.1, 0.9], [0.3, 0.7]]}, [[[1, 0]], [[0, 1]]]),
+            ({"probs": [0.1, 0.2, 0.7]}, [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]),
+            ({"probs": [[0.1, 0.9], [0.3, 0.7]]}, [[[1.0, 0.0]], [[0.0, 1.0]]]),
         ]
         self._check_enumerate_support(OneHotCategorical, examples)
 
