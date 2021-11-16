@@ -2,31 +2,12 @@
 
 // ${generated_comment}
 
-#include <ATen/Context.h>
-#include <ATen/NativeMetaFunctions.h>
-#include <ATen/core/Reduction.h>
-#include <c10/core/ScalarType.h>
-#include <c10/core/TensorOptions.h>
+#ifdef TORCH_ASSERT_NO_OPERATORS
+#error This change adds a dependency on native_functions.yaml,            \
+  meaning the file will need to be re-compiled every time an operator     \
+  is changed or added. Consider if your change would be better placed in  \
+  another file, or if a more specific header might achieve the same goal. \
+  See NOTE: [Tensor vs. TensorBase]
+#endif
 
-#include <array>
-#include <functional>
-#include <string>
-#include <tuple>
-#include <vector>
-
-namespace c10 {
-class Scalar;
-}
-namespace at {
-struct Generator;
-class Tensor;
-struct Type;
-} // namespace at
-
-namespace at {
-namespace native {
-
-${native_function_declarations}
-
-} // namespace native
-} // namespace at
+${NativeFunctions_includes}
